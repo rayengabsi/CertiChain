@@ -10,8 +10,8 @@ Probability & impact scored **Low / Medium / High**. Owner: **A** = student A (b
 
 | ID | Risk | P | I | Mitigation (do now) | Contingency (if it happens) | Owner |
 |---|---|---|---|---|---|---|
-| R-01 | Sepolia test ETH unavailable / faucet limits | M | H | Acquire test ETH for 2–3 wallets **by Day 10** (before it is needed on Day 27); use multiple faucet providers; keep ≥0.5 ETH total | Demo on Hardhat local node with saved state; show Sepolia deployment video as backup | T |
-| R-02 | MongoDB not installed locally (confirmed) | H | M | Create Atlas free cluster on Day 2; store URI in `.env` | Local MongoDB install; or `mongodb-memory-server` for tests | A |
+| R-01 | Sepolia test ETH unavailable / faucet limits | L | **Optional now** — local Hardhat chain is the MVP target; Sepolia is post-MVP | Demo on local chain (works offline); Sepolia video as backup | T |
+| R-02 | MongoDB not installed locally | ~~H~~ **Resolved** | ✅ MongoDB Server service verified **Running** on 127.0.0.1:27017 (emergency scope check) | Restart service if it stops | A |
 | R-03 | Contract bug discovered after Sepolia deployment | L | H | Test-first contract phase (Days 4–7), ≥90% coverage, code review by partner before deploy | Redeploy + re-authorize universities (documented recovery path, no funds at risk) | T |
 | R-04 | Nonce collisions / stuck transactions under concurrent issuance | M | M | Per-wallet serialized tx queue; sync nonce from `getTransactionCount('pending')` on start | Bump gas and replace stuck tx; single-flight issuance during demo | A |
 | R-05 | PDF hash mismatch caused by storage re-encoding | M | H | Hash **exact uploaded bytes**; store the same bytes untouched; never re-serialize; test the round-trip early (Day 13) | If detected late: re-anchor with corrected pipeline before demo | A |

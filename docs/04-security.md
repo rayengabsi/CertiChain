@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Phase** | 0 — Planning |
-| **Version** | 1.0 (2026-11-11) |
-| **Status** | Awaiting team review — this document drives the cybersecurity grade |
+| **Phase** | Emergency MVP (scope change) |
+| **Version** | 1.1 (2026-11-11) — v1.1: MetaMask signing model, confirm-endpoint forgery tests added |
+| **Status** | Security test results executed and documented in `docs/test-report.md` |
 
 > **Honesty rule (project brief §9):** passing tests do not prove security. Every control below has a test *and* a documented residual risk (§9). The final report must state limitations explicitly.
 
@@ -32,12 +32,17 @@
 ```
 UNTRUSTED                 │ SEMI-TRUSTED            │ TRUSTED
 ──────────────────────────┼─────────────────────────┼──────────────────────────
-Recruiter (public, no     │ Authenticated users     │ Backend services
-auth) ── rate-limited,    │ (student/university/    │ MongoDB · document store
-strictly validated input  │ admin) ── RBAC, JWT     │ Sepolia via RPC
+Recruiter (public, no     │ Authenticated users     │ Backend (ZERO private keys:
+auth) ── rate-limited,    │ (admin/university)      │  read-only chain access,
+strictly validated input  │ + their MetaMask       │  verifies every frontend-
+                          │   wallets sign chain   │  claimed tx on-chain)
+                          │   writes               │ MongoDB · document store
+                          │                         │ Hardhat node / Sepolia
                           │                         │ (contract = public
                           │                         │  tamper-evident record)
 ```
+
+**Key v1.1 change:** chain *writes* (issue/revoke/authorize) are signed by MetaMask in the browser; the backend has no keys at all. The new attack surface this creates — *the backend trusting a frontend-claimed transaction hash* — is closed by on-chain verification of every receipt/event (threat T-15, tests SEC-17/SEC-18).
 
 ## 3. Threat model (STRIDE, per boundary)
 
@@ -54,9 +59,10 @@ strictly validated input  │ admin) ── RBAC, JWT     │ Sepolia via RPC
 | T-09 | Server-side key theft | Disclosure | DB dump, memory dump, logs | AES-256-GCM at rest, decrypt in memory only, never logged, keys never in Git |
 | T-10 | Secret leakage via repository | Disclosure | Committed `.env` or key files | `.gitignore` from commit #1, `.env.example` only, review checklist |
 | T-11 | Repudiation of issuance/revocation | Repudiation | "We never issued that" | On-chain events (issuer, timestamp) + audit logs |
-| T-12 | Blockchain record manipulation | Tampering | (out of our control) | Public chain assumption; Etherscan inspection (UC-15) |
+| T-15 | Forged transaction confirmation | Elevation | Client posts a confirm request with a txHash that is bogus, someone else's, or from a mismatched event | Backend parses the receipt on-chain itself: event name, certificateId, fingerprint, issuer wallet and tx.from must all match; pending record must belong to the caller's university |
+| T-16 | Blockchain record manipulation | Tampering | (out of our control) | Public chain assumption; Etherscan inspection (UC-15) |
 | T-13 | Verification DoS | DoS | Hammering public endpoints | Rate limits on `/api/verify/*` |
-| T-14 | JWT tampering / forgery | Spoofing | `alg:none`, role claim edit, expired reuse | Signed HS256, explicit algorithm check, 1 h expiry |
+| T-14 | JWT tampering / forgery | Spoofing | `alg:none`, role claim edit, expired reuse | Signed HS256, explicit algorithm check, expiry |
 
 ## 4. OWASP Top 10 (2021) mapping
 
@@ -123,7 +129,10 @@ strictly validated input  │ admin) ── RBAC, JWT     │ Sepolia via RPC
 | SEC-13 | JWT attacks: expired, tampered payload, `alg:none`, wrong signature | Crafted tokens | 401 for all | _TBD_ |
 | SEC-14 | Information disclosure: nonexistent cert ID, error paths | GET /verify/random-uuid; trigger 500 | No PII, no stack traces, no existence oracle for student data | _TBD_ |
 | SEC-15 | Audit trail: failed logins, failed authz, issuance, revocation | Perform actions, inspect audit collection | All recorded with actor + result | _TBD_ |
-| SEC-16 | Student account preemption: register victim email without code | POST /auth/register (no code / wrong code) | 400/403 | _TBD_ |
+| SEC-16 | ~~Student account preemption~~ N/A tonight — no public registration endpoint exists (student accounts postponed); SEC-03 covers role escalation via registration | POST /auth/register → 404 | Endpoint does not exist | _TBD_ |
+| SEC-17 | Confirm-forgery: university confirms issuance with a **bogus tx hash** | POST confirm {txHash: fake} | Rejected — tx not found / no matching event | _TBD_ |
+| SEC-18 | Confirm-forgery: confirm with a **real tx from a different certificate / different university / different hash** | Cross-confirm attempts | Rejected — event args (certId, fingerprint, issuer, from) must all match | _TBD_ |
+| SEC-19 | Confirm a **pending certificate belonging to another university** | University B confirms A's pending cert | 404/403 — ownership checked server-side | _TBD_ |
 
 ## 8. Smart contract test plan (Hardhat/Chai — brief §6 mandatory list + extras)
 
@@ -148,7 +157,7 @@ strictly validated input  │ admin) ── RBAC, JWT     │ Sepolia via RPC
 ## 9. Residual risks & honest limitations (report must include these)
 
 1. **Hash anchoring is a membership oracle.** Anyone holding a candidate PDF can test it against the chain — that is the feature (verification). Salting would break public hash verification; unsalted SHA-256 is an accepted, documented trade-off.
-2. **Server-side signer custody.** University keys are encrypted at rest but usable by the backend at runtime. Full server compromise → fraudulent issuance *as a university* (still on-chain visible). Mitigation accepted for MVP; alternative (university-held keys) documented in architecture §6.
+2. ~~Server-side signer custody~~ **Eliminated in v1.1**: the backend holds zero private keys (MetaMask model). The replaced risk is T-15 (forged confirmations), mitigated and tested via SEC-17/18/19.
 3. **Admin is a single root of trust** for university identity. Standard for anchored-PKI designs; on-chain grants make admin actions publicly auditable.
 4. **Immutable contract** — no patching in place. Recovery = redeploy + re-authorization. Mitigated by test-first development.
 5. **Deauthorization is not retroactive** (documented semantic).

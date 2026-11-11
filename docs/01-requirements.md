@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Phase** | 0 — Planning |
-| **Version** | 1.0 (2026-11-11) |
-| **Status** | Awaiting team review and approval |
+| **Phase** | Emergency MVP (scope change) |
+| **Version** | 1.1 (2026-11-11) — decisions D1–D5 resolved, student features postponed |
+| **Status** | Implemented tonight — see `docs/test-report.md` |
 | **Author** | Generated with AI assistance — see `docs/07-ai-usage-log.md`, entry AI-001 |
 
 ---
@@ -28,7 +28,7 @@ CertiChain's answer: when a university issues a diploma, the platform anchors a 
 
 ### 3.1 In scope (MVP)
 
-- JWT authentication with four roles (admin, university, student) and public (recruiter) access.
+- JWT authentication with roles (admin, university) and public (recruiter) access. **Student accounts postponed** (post-MVP backlog).
 - University authorization/deauthorization by admin, **enforced on-chain**.
 - Diploma PDF upload with server-side validation and SHA-256 computation.
 - Certificate issuance: on-chain fingerprint registration via a university-bound signer.
@@ -45,7 +45,7 @@ CertiChain's answer: when a university issues a diploma, the platform anchors a 
 | Excluded | Reason |
 |---|---|
 | IPFS document storage | Secondary feature; adds infrastructure risk. Server-side storage is more reliable for the demo. |
-| Full student portal (profile editing, notifications) | Secondary per project brief; MVP portal is read/share only. |
+| Full student portal (profile editing, notifications) | **Postponed** — emergency scope decision; students receive their diploma + verification link/QR out-of-band from the university. |
 | Email delivery infrastructure | No SMTP available; student activation uses codes delivered out-of-band by the university. |
 | Contract upgradeability (proxies) | Adds complexity and risk; an immutable registry is simpler and more defensible for the MVP. |
 | Real-mainnet deployment / real funds | Sepolia testnet only. |
@@ -59,7 +59,7 @@ CertiChain's answer: when a university issues a diploma, the platform anchors a 
 |---|---|---|
 | **Admin** | JWT (login) | Platform owner. Root of trust: authorizes/deauthorizes universities, monitors activity. Holds the contract's `DEFAULT_ADMIN_ROLE` via a server-side admin wallet. |
 | **University** | JWT (login, created by admin) | Authorized issuer. Each university has a dedicated on-chain signer address holding `ISSUER_ROLE`. |
-| **Student** | JWT (activates account with code from university) | Diploma holder. Reads and shares their own certificates. |
+| **Student** | ~~JWT~~ **postponed** | Diploma holder. In tonight's MVP the university dashboard holds certificate info and produces the share link/QR; the student portal is post-MVP. |
 | **Recruiter / public** | **None** | Verifies certificates without registration. |
 | **System (backend)** | Service identity | The Node.js API is the only component that talks to the blockchain, MongoDB and document storage. |
 
@@ -94,7 +94,7 @@ Priorities: **M** = must have, **S** = should have, **C** = could have (cut firs
 |---|---|---|---|
 | AUTH-01 | Email/password login for admin, university, student | M | Valid credentials → JWT (1 h); invalid → generic 401, both cases audit-logged |
 | AUTH-02 | Passwords hashed with bcrypt (cost 12), never stored or logged in clear | M | Only bcrypt hashes in DB; no cleartext in logs |
-| AUTH-03 | Student self-registration requires an activation code bound to the email issued by a university | M | Registering an email without a valid code fails; prevents account preemption |
+| AUTH-03 | ~~Student activation codes~~ **postponed** (post-MVP) — no public registration endpoint exists at all | M | There is no public account-creation endpoint; admin/university accounts are created only by the admin |
 | AUTH-04 | Admin/university accounts are created only by the admin | M | No public endpoint can create privileged accounts |
 | AUTH-05 | JWT contains role and user ID, expires, and is validated on every protected route | M | Expired/tampered/unsigned tokens → 401 |
 | AUTH-06 | Login endpoint rate-limited | M | >N attempts/15 min from one IP → 429 |
@@ -144,13 +144,13 @@ Priorities: **M** = must have, **S** = should have, **C** = could have (cut firs
 | REV-03 | Revocation reason stored off-chain, linked by certificate ID + tx hash | S | Reason visible to university/admin and on the verification page |
 | REV-04 | Revocation by a different university rejected | M | On-chain issuer-ownership check + API 403 |
 
-### 6.6 Student portal (STU)
+### 6.6 Student portal (STU) — **postponed to post-MVP (emergency scope decision)**
 
 | ID | Requirement | Priority | Acceptance criteria |
 |---|---|---|---|
-| STU-01 | List own certificates (matched by account email) | M | No cross-student visibility (tested) |
-| STU-02 | Download own diploma PDF | M | Authorization enforced server-side |
-| STU-03 | Get shareable link + QR code | M | Link/QR contain only the public verification URL |
+| STU-01 | List own certificates (matched by account email) | postponed | No cross-student visibility (tested) |
+| STU-02 | Download own diploma PDF | postponed | Authorization enforced server-side |
+| STU-03 | Get shareable link + QR code | M (covered by university dashboard tonight) | Link/QR contain only the public verification URL |
 
 ### 6.7 Blockchain contract (CHN)
 
@@ -211,12 +211,13 @@ Priorities: **M** = must have, **S** = should have, **C** = could have (cut firs
 | **C — Technical Q&A (7 pts)** | Every requirement ID is a potential defense question; the team must be able to explain each one |
 | **D — Generative AI usage (3 pts)** | This document was AI-assisted and is logged in `docs/07-ai-usage-log.md`; corrections made during review must be recorded there |
 
-## 11. Open decisions (to confirm at approval)
+## 11. Decisions (all resolved — emergency scope)
 
-| # | Decision | Default proposal |
+| # | Decision | Resolution |
 |---|---|---|
-| D1 | Language for frontend/backend | **JavaScript (ES modules) + ESLint** — fastest to master and defend; TypeScript is a stretch goal |
-| D2 | MongoDB hosting | **MongoDB Atlas free tier** (no local install needed; works from university network) with local install as fallback |
-| D3 | JWT client storage | **sessionStorage + 1 h expiry + strict CSP** — documented trade-off vs localStorage (XSS) and cookies (CSRF) in `docs/04-security.md` |
-| D4 | Student activation | Activation code shown to the university at issuance, delivered out-of-band (printed/emailed by the university) |
-| D5 | Duplicate PDF policy | One PDF (byte-identical) = one certificate; re-issuance of identical bytes is rejected |
+| D1 | Language for frontend/backend | **JavaScript** throughout |
+| D2 | MongoDB hosting | **Local MongoDB** at `mongodb://127.0.0.1:27017/certichain` (service verified running) |
+| D3 | JWT client storage | **sessionStorage** for the MVP (documented trade-off in `docs/04-security.md` §6) |
+| D4 | Student activation | **Postponed** — no student accounts in tonight's MVP |
+| D5 | Duplicate PDF policy | One PDF (byte-identical) = one certificate; unique index on SHA-256 |
+| D6 | Transaction signing | **MetaMask university wallets** — backend holds zero private keys and verifies all claimed transactions on-chain (`docs/02-architecture.md` §6) |
