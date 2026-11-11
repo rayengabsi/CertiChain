@@ -19,17 +19,17 @@
 
 ## Tonight's phases (each phase = implementation → test → commit → push)
 
-| # | Phase | Exit criteria |
-|---|---|---|
-| 1 | Documentation updated to emergency scope | this commit |
-| 2 | `blockchain/` workspace: `CertificateRegistry.sol` + full test suite | all CT tests pass locally |
-| 3 | Local Hardhat node running + contract deployed + ABI exported | contract address recorded in `.env` |
-| 4 | `backend/` workspace: Express API + MongoDB + auth/RBAC/upload/hash services | server boots, connects to Mongo, health check green |
-| 5 | Public verification + confirm-with-on-chain-verification endpoints | E2E script proves valid/revoked/modified/not-found flows |
-| 6 | `frontend/` workspace: React dashboards + public verification page + MetaMask | production build succeeds; UI wired to API |
-| 7 | QR generation | QR displayed in dashboard, encodes verification URL |
-| 8 | Security test suite executed + results documented | `docs/test-report.md` filled with actual results |
-| 9 | README + final documentation + AI log | repo tells the whole story by itself |
+| # | Phase | Exit criteria | Status |
+|---|---|---|---|
+| 1 | Documentation updated to emergency scope | this commit | ✅ done (`0bed8ee`) |
+| 2 | `blockchain/` workspace: `CertificateRegistry.sol` + full test suite | all CT tests pass locally | ✅ 23/23 passing, 100 % stmts (`fc0c478`) |
+| 3 | Local Hardhat node running + contract deployed + ABI exported | contract address recorded in `.env` | ✅ `0x5FbDB2315678afecb367f032d93F642f64180aa3` |
+| 4 | `backend/` workspace: Express API + MongoDB + auth/RBAC/upload/hash services | server boots, connects to Mongo, health check green | ✅ (`7dc24e7`) |
+| 5 | Public verification + confirm-with-on-chain-verification endpoints | E2E script proves valid/revoked/tampered(not-found) flows | ✅ E2E ALL CHECKS PASSED |
+| 6 | `frontend/` workspace: React dashboards + public verification page + MetaMask | production build succeeds; UI wired to API | ✅ build OK, verified in browser (`894dd5f`) |
+| 7 | QR generation | QR displayed in dashboard, encodes verification URL | ✅ |
+| 8 | Security test suite executed + results documented | `docs/test-report.md` filled with actual results | ✅ 23 backend tests + E2E |
+| 9 | README + final documentation + AI log | repo tells the whole story by itself | ✅ |
 
 ## Post-MVP backlog (only after tonight's MVP is verified)
 
@@ -40,7 +40,7 @@ Sepolia deployment · student portal with activation codes · Etherscan-verified
 1. Admin logs in → creates university (name + wallet address) → authorizes on-chain with MetaMask.
 2. University logs in → uploads diploma PDF → signs issuance with MetaMask → QR appears.
 3. Phone scans QR → public page shows **VALID**.
-4. Same page after tampering one byte of the PDF → **INVALID/MODIFIED**.
+4. Same page after tampering one byte of the PDF → **NOT FOUND** (never VALID — SHA-256 avalanche; see `docs/test-report.md` D-1).
 5. University revokes with MetaMask → page shows **REVOKED**.
-6. Deauthorized university tries to issue → contract rejects.
+6. Deauthorized university tries to issue → contract rejects (`AccessControlUnauthorizedAccount`).
 7. Closing argument: even with our servers offline, the anchors remain verifiable on-chain.
