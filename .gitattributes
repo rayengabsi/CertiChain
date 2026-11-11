@@ -1,0 +1,13 @@
+# Normalize text files in the repository (LF in index, native checkout)
+* text=auto
+
+# Binary assets — never normalize
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.zip binary

@@ -1,0 +1,50 @@
+# ─── Dependencies ───────────────────────────────────────────────
+node_modules/
+
+# ─── Environment & secrets (NEVER commit these) ────────────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets/
+credentials.json
+
+# ─── Build outputs ──────────────────────────────────────────────
+dist/
+build/
+
+# ─── Test coverage ──────────────────────────────────────────────
+coverage/
+*.lcov
+coverage.json
+.nyc_output/
+
+# ─── Hardhat artifacts ──────────────────────────────────────────
+cache/
+artifacts/
+typechain-types/
+typechain/
+cache_for_sampling/
+
+# ─── Uploaded diploma documents (user data — never commit) ─────
+uploads/
+backend/uploads/
+
+# ─── Local databases / dumps ─────────────────────────────────────
+data/
+*.mongodump
+*.bson
+
+# ─── Logs ────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+
+# ─── Operating system / editor noise ─────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
