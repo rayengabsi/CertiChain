@@ -85,10 +85,13 @@ async function parseTransaction(txHash) {
     })
     .filter(Boolean)
     .map((e) => {
+      // ethers v6 Result exposes named args as NON-enumerable properties, so we must
+      // read them through the event fragment's inputs (e.args[i] works for both
+      // indexed and non-indexed parameters, in declaration order).
       const args = {};
-      for (const key of Object.keys(e.args)) {
-        if (isNaN(Number(key))) args[key] = lower(String(e.args[key]));
-      }
+      e.fragment.inputs.forEach((input, i) => {
+        if (input.name) args[input.name] = lower(String(e.args[i]));
+      });
       return { name: e.name, args };
     });
 
