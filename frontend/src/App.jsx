@@ -4,6 +4,7 @@ import PublicLayout from './components/layout/PublicLayout.jsx';
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
 import NotFound from './pages/NotFound.jsx';
+import VerifyLookupPage from './pages/VerifyLookupPage.jsx';
 import VerifyPage from './pages/VerifyPage.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import CertificateDetail from './pages/university/CertificateDetail.jsx';
@@ -30,8 +31,18 @@ export default function App() {
           </PublicLayout>
         }
       />
-      {/* /verify without an ID redirects to home so users use the VerifyPanel */}
-      <Route path="/verify" element={<Navigate to="/" replace />} />
+      {/* /verify without an ID redirects to lookup */}
+      <Route path="/verify" element={<Navigate to="/verify/lookup" replace />} />
+      {/* /verify/lookup — interactive verification panel (ID or PDF) */}
+      <Route
+        path="/verify/lookup"
+        element={
+          <PublicLayout>
+            <VerifyLookupPage />
+          </PublicLayout>
+        }
+      />
+      {/* /verify/:certificateId — deep-link result for a specific certificate */}
       <Route
         path="/verify/:certificateId"
         element={
