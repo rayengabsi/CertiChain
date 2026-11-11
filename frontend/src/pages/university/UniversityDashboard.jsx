@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { errorMessage } from '../../api/client.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
+import DashboardLayout from '../../components/layout/DashboardLayout.jsx';
 import StatusBadge from '../../components/StatusBadge.jsx';
 import {
   CONTRACT_ADDRESS,
@@ -133,18 +134,15 @@ export default function UniversityDashboard() {
 
   const notAuthorized = university && !university.authorized;
 
+  const pageTitle = university?.name || 'University Dashboard';
+
   return (
-    <div className="container">
-      <h1 className="page-title">{university?.name || 'University dashboard'}</h1>
-      <p className="page-sub">
-        Signed in as <strong>{user?.email}</strong>
-        {university && (
-          <>
-            {' '}· registered wallet <span className="mono">{shortAddress(university.ethAddress)}</span>{' '}
-            <StatusBadge status={university.authorized ? 'authorized' : 'unauthorized'} />
-          </>
-        )}
-      </p>
+    <DashboardLayout
+      title={pageTitle}
+      breadcrumbs={[{ label: 'University' }, { label: 'Dashboard' }]}
+      showWallet
+    >
+      <div>
 
       {notAuthorized && (
         <div className="alert error">
@@ -302,6 +300,7 @@ export default function UniversityDashboard() {
           </table>
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

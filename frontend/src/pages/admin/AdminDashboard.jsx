@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import api, { errorMessage } from '../../api/client.js';
 import { useAuth } from '../../auth/AuthContext.jsx';
+import DashboardLayout from '../../components/layout/DashboardLayout.jsx';
 import StatusBadge from '../../components/StatusBadge.jsx';
 import {
   CONTRACT_ADDRESS,
@@ -132,8 +133,12 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="container">
-      <h1 className="page-title">Platform administration</h1>
+    <DashboardLayout
+      title="Platform Administration"
+      breadcrumbs={[{ label: 'Admin' }, { label: 'Dashboard' }]}
+      showWallet
+    >
+      <div>
       <p className="page-sub">
         Signed in as <strong>{user?.email}</strong>. Grant or revoke a university's right to issue
         certificates. Authorization is enforced by the smart contract, not by this server.
@@ -342,6 +347,7 @@ export default function AdminDashboard() {
           </table>
         </div>
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }

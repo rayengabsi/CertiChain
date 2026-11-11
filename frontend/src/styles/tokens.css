@@ -1,0 +1,89 @@
+/* ============================================================================
+   CertiChain — design tokens
+   Single source of truth for colour, type, spacing, radii, shadows and motion.
+   Palette: deep navy surfaces + electric violet accent (see the brief).
+   ========================================================================== */
+
+:root {
+  /* ── surfaces ─────────────────────────────────────────────────────────── */
+  --bg: #0b1020;            /* deep navy — app background            */
+  --bg-elev: #111a2e;       /* navy — raised background              */
+  --surface: #141e38;       /* cards / panels                        */
+  --surface-2: #1a2544;     /* inputs / nested panels                */
+  --surface-3: #212e52;     /* hover / selected                      */
+  --border: #263252;        /* default hairline border               */
+  --border-strong: #35426c; /* emphasised border                     */
+
+  /* ── text ─────────────────────────────────────────────────────────────── */
+  --text: #e9edf9;
+  --text-muted: #94a1c5;
+  --text-dim: #6b789e;
+
+  /* ── brand + semantics ────────────────────────────────────────────────── */
+  --accent: #795cff;                       /* electric violet  */
+  --accent-hover: #8b73ff;
+  --accent-active: #6849f0;
+  --accent-soft: rgba(121, 92, 255, 0.14);
+  --accent-ring: rgba(121, 92, 255, 0.45);
+
+  --blue: #3b82f6;                         /* secondary accent */
+  --blue-soft: rgba(59, 130, 246, 0.14);
+
+  --success: #10b981;                      /* emerald          */
+  --success-soft: rgba(16, 185, 129, 0.14);
+  --success-text: #7ff0c4;
+
+  --warning: #f59e0b;                      /* amber            */
+  --warning-soft: rgba(245, 158, 11, 0.14);
+  --warning-text: #ffd79a;
+
+  --danger: #ef4444;                       /* red              */
+  --danger-hover: #f35c5c;
+  --danger-soft: rgba(239, 68, 68, 0.14);
+  --danger-text: #ffb4b4;
+
+  /* ── typography ───────────────────────────────────────────────────────── */
+  --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Cascadia Code', Consolas, 'Courier New', monospace;
+
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --fs-2xl: 24px;
+  --fs-3xl: 30px;
+  --fs-4xl: 38px;
+
+  /* ── radii ────────────────────────────────────────────────────────────── */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-full: 999px;
+
+  /* ── shadows ──────────────────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.45);
+  --shadow-accent: 0 10px 30px rgba(121, 92, 255, 0.28);
+
+  /* ── layout metrics ───────────────────────────────────────────────────── */
+  --sidebar-w: 264px;
+  --topbar-h: 66px;
+  --content-max: 1280px;
+  --gutter: 26px;
+
+  /* ── motion ───────────────────────────────────────────────────────────── */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-slow: 320ms;
+
+  --z-sidebar: 40;
+  --z-topbar: 30;
+  --z-drawer: 60;
+  --z-modal: 70;
+  --z-toast: 90;
+}
