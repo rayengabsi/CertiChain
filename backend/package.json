@@ -1,0 +1,33 @@
+{
+  "name": "certichain-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CertiChain REST API — Express + MongoDB. Holds ZERO private keys; read-only blockchain access.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node scripts/seed.js",
+    "test": "cross-env NODE_ENV=test jest --runInBand --forceExit",
+    "e2e": "node scripts/e2e-demo.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.4",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.0",
+    "multer": "^2.0.1",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
