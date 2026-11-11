@@ -685,3 +685,9 @@ table.table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
   to { opacity: 1; transform: none; }
 }
 .rise { animation: rise var(--dur-slow) var(--ease); }
+
+/* Refresh spin animation (slower than the spinner) */
+.spin-slow { animation: spin 1.2s linear infinite; }
+
+/* Required field marker */
+.req { color: var(--danger); margin-left: 2px; }
