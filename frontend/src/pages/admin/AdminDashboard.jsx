@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
-  FilePlus2,
   Plus,
   RefreshCw,
   Search,
@@ -65,7 +64,7 @@ export default function AdminDashboard() {
   /* ── data ─────────────────────────────────────────────────────────────── */
   const [universities, setUniversities] = useState([]);
   const [activity, setActivity] = useState([]);
-  const [totalCerts, setTotalCerts] = useState(null);
+
   const [loadingData, setLoadingData] = useState(true);
 
   /* ── wallet ───────────────────────────────────────────────────────────── */
@@ -100,15 +99,6 @@ export default function AdminDashboard() {
       ]);
       setUniversities(uRes.data.universities);
       setActivity(aRes.data.activity);
-      // Derive total certs from university list (sum if available), else call /certificates
-      // The admin API may not expose total certs directly; we try gracefully.
-      try {
-        const cRes = await api.get('/admin/certificates/count');
-        setTotalCerts(cRes.data.total);
-      } catch {
-        // Not all backends expose this endpoint; leave null = "—"
-        setTotalCerts(null);
-      }
     } catch (err) {
       toast.error(errorMessage(err));
     } finally {
@@ -261,12 +251,6 @@ export default function AdminDashboard() {
           value={loadingData ? '…' : stats.unauthorized}
           icon={ShieldOff}
           tone="warn"
-        />
-        <StatCard
-          label="Total Certificates"
-          value={loadingData ? '…' : (totalCerts ?? '—')}
-          icon={FilePlus2}
-          tone="blue"
         />
       </div>
 
