@@ -255,7 +255,10 @@ async function main() {
     token: adminToken,
     body: { txHash: reauthTx.hash },
   });
-  check('university re-authorized', confirmReauth.status === 200 && confirmReauth.body.university.authorized === true);
+  check(
+    'university re-authorized',
+    confirmReauth.status === 200 && confirmReauth.body?.university?.authorized === true
+  );
 
   // summary
   console.log('\n══════════════════════════════════════════════════════════');
