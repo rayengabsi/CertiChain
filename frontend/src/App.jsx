@@ -7,6 +7,7 @@ import NotFound from './pages/NotFound.jsx';
 import VerifyPage from './pages/VerifyPage.jsx';
 import AdminDashboard from './pages/admin/AdminDashboard.jsx';
 import CertificateDetail from './pages/university/CertificateDetail.jsx';
+import IssueCertificate from './pages/university/IssueCertificate.jsx';
 import UniversityDashboard from './pages/university/UniversityDashboard.jsx';
 
 export default function App() {
@@ -56,6 +57,14 @@ export default function App() {
         element={
           <ProtectedRoute role="university">
             <UniversityDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/university/issue"
+        element={
+          <ProtectedRoute role="university">
+            <IssueCertificate />
           </ProtectedRoute>
         }
       />

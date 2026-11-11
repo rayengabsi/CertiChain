@@ -8,7 +8,6 @@ import {
   ChevronUp,
   ClipboardCopy,
   Clock,
-  ExternalLink,
   FilePlus2,
   RefreshCw,
   Search,
@@ -31,10 +30,8 @@ import {
   CHAIN_NAME,
   connectWallet,
   shortAddress,
-  writeContract,
 } from '../../web3/contract.js';
 
-const EMPTY_FORM = { studentName: '', studentEmail: '', program: '', degree: '' };
 const fmtDate = (v) => (v ? new Date(v).toLocaleString() : '—');
 const fmtDateShort = (v) => (v ? new Date(v).toLocaleDateString() : '—');
 const PAGE_SIZE = 10;
@@ -46,14 +43,14 @@ function SortIcon({ col, sortKey, sortAsc }) {
 }
 
 /**
- * University dashboard — premium redesign (Stage 4).
+ * University dashboard — premium workspace overview (Stage 4 / Stage 5).
  *
- * Preserves all existing API calls and MetaMask signing flows.
- * The issuance form is intentionally kept here but visually deprioritised
- * (Stage 5 will extract it into a dedicated page/modal).
+ * Issuance is now handled by the dedicated /university/issue wizard (Stage 5).
+ * This page shows KPIs, university info, wallet status, recent activity and
+ * the full certificate management table.
  */
 export default function UniversityDashboard() {
-  const { user, university, refreshMe } = useAuth();
+  const { university, refreshMe } = useAuth();
   const toast = useToast();
 
   /* ── data ─────────────────────────────────────────────────────────────── */
@@ -63,13 +60,6 @@ export default function UniversityDashboard() {
   /* ── wallet ───────────────────────────────────────────────────────────── */
   const [wallet, setWallet] = useState(null);
   const [connectingWallet, setConnectingWallet] = useState(false);
-
-  /* ── issuance state (kept from original) ─────────────────────────────── */
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [file, setFile] = useState(null);
-  const [pending, setPending] = useState(null);
-  const [qr, setQr] = useState(null);
-  const [busy, setBusy] = useState('');
 
   /* ── table UI ─────────────────────────────────────────────────────────── */
   const [search, setSearch] = useState('');
@@ -96,10 +86,10 @@ export default function UniversityDashboard() {
 
   /* ── computed stats ───────────────────────────────────────────────────── */
   const stats = useMemo(() => {
-    const issued = certificates.filter((c) => c.status === 'issued').length;
+    const issued  = certificates.filter((c) => c.status === 'issued').length;
     const revoked = certificates.filter((c) => c.status === 'revoked').length;
-    const pending_count = certificates.filter((c) => c.status === 'pending').length;
-    return { total: certificates.length, issued, revoked, pending: pending_count };
+    const pend    = certificates.filter((c) => c.status === 'pending').length;
+    return { total: certificates.length, issued, revoked, pending: pend };
   }, [certificates]);
 
   /* ── filtered + sorted + paginated list ───────────────────────────────── */
@@ -163,57 +153,6 @@ export default function UniversityDashboard() {
     }
   }
 
-  /* ── issuance (Step 1: upload) ────────────────────────────────────────── */
-  async function onUpload(e) {
-    e.preventDefault();
-    if (!file) { toast.error('Choose a PDF file first.'); return; }
-    setBusy('upload');
-    setQr(null);
-    setPending(null);
-    try {
-      const body = new FormData();
-      Object.entries(form).forEach(([k, v]) => body.append(k, v));
-      body.append('pdf', file);
-      const { data } = await api.post('/certificates', body);
-      setPending(data);
-      toast.info(`PDF hashed. SHA-256 = ${data.sha256.slice(0, 16)}… Sign issue() to anchor on-chain.`);
-      setForm(EMPTY_FORM);
-      setFile(null);
-      await loadCertificates();
-    } catch (err) {
-      const data = err.response?.data;
-      if (data?.error?.code === 'PENDING_EXISTS' && data.existing) {
-        toast.error(`${data.error.message} (existing ID: ${data.existing.certificateId})`);
-      } else {
-        toast.error(errorMessage(err));
-      }
-    } finally {
-      setBusy('');
-    }
-  }
-
-  /* ── issuance (Step 2: sign on-chain) ────────────────────────────────── */
-  async function onConfirmIssue() {
-    if (!wallet) { toast.error('Connect MetaMask first.'); return; }
-    if (!pending) return;
-    setBusy('issue');
-    try {
-      const contract = writeContract(wallet.signer);
-      const tx = await contract.issue(pending.certIdBytes32, pending.fingerprintBytes32);
-      toast.info(`issue() submitted (${tx.hash.slice(0, 12)}…). Waiting for the transaction to be mined…`);
-      await tx.wait();
-      const { data } = await api.post(`/certificates/${pending.certificateId}/confirm`, { txHash: tx.hash });
-      setQr(data.qr);
-      toast.success('Certificate anchored on-chain and confirmed. ✅');
-      setPending(null);
-      await loadCertificates();
-    } catch (err) {
-      toast.error(errorMessage(err));
-    } finally {
-      setBusy('');
-    }
-  }
-
   const walletMismatch = wallet && university &&
     wallet.address.toLowerCase() !== university.ethAddress?.toLowerCase();
   const notAuthorized = university && !university.authorized;
@@ -233,9 +172,9 @@ export default function UniversityDashboard() {
       breadcrumbs={[{ label: 'University' }, { label: 'Dashboard' }]}
       showWallet
       actions={
-        <Button icon={FilePlus2} onClick={() => document.getElementById('issue-section')?.scrollIntoView({ behavior: 'smooth' })}>
-          Issue Certificate
-        </Button>
+        <Link className="btn" to="/university/issue">
+          <FilePlus2 size={16} /> Issue Certificate
+        </Link>
       }
     >
       {/* ── Authorization banner ─────────────────────────────────────────── */}
@@ -359,13 +298,25 @@ export default function UniversityDashboard() {
 
       {/* ── Recent Activity ──────────────────────────────────────────────── */}
       <div className="card" style={{ marginBottom: 24 }}>
-        <h3 style={{ marginBottom: 14, fontSize: 'var(--fs-md)' }}>Recent Activity</h3>
+        <div className="spread" style={{ marginBottom: 14 }}>
+          <h3 style={{ fontSize: 'var(--fs-md)', margin: 0 }}>Recent Activity</h3>
+          <Link className="btn ghost small" to="/university/issue">
+            <FilePlus2 size={14} /> Issue Certificate
+          </Link>
+        </div>
         {loadingData ? (
           <div>
             {[1, 2, 3].map((i) => <div key={i} className="skeleton row" style={{ marginBottom: 8 }} />)}
           </div>
         ) : recentCerts.length === 0 ? (
-          <p className="muted small">No certificates yet.</p>
+          <div className="empty">
+            <div className="empty-icon"><Award size={22} /></div>
+            <h3>No certificates yet</h3>
+            <p>Issue your first certificate to get started.</p>
+            <Link className="btn" to="/university/issue">
+              <FilePlus2 size={15} /> Issue Certificate
+            </Link>
+          </div>
         ) : (
           <div className="table-wrap plain">
             <table className="table">
@@ -394,128 +345,6 @@ export default function UniversityDashboard() {
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-      </div>
-
-      {/* ── Certificate Issuance (preserved, Stage 5 will refactor) ─────── */}
-      <div id="issue-section" className="card" style={{ marginBottom: 24 }}>
-        <h2 style={{ marginBottom: 6 }}>Issue a Certificate</h2>
-        <p className="muted small" style={{ marginBottom: 16 }}>
-          Upload a diploma PDF. The backend computes the SHA-256 fingerprint; only the fingerprint and
-          certificate ID are stored on-chain — never student personal data.
-        </p>
-
-        {(walletMismatch) && (
-          <div className="alert warn" style={{ marginBottom: 14 }}>
-            <AlertTriangle size={15} /> Issuance is disabled: connected wallet does not match the registered university wallet.
-          </div>
-        )}
-
-        <form onSubmit={onUpload}>
-          <div className="grid cols-2">
-            <div className="field">
-              <label htmlFor="studentName">Student name <span className="req">*</span></label>
-              <input
-                id="studentName"
-                className="input"
-                value={form.studentName}
-                onChange={(e) => setForm({ ...form, studentName: e.target.value })}
-                required
-                maxLength={120}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="studentEmail">Student email <span className="req">*</span></label>
-              <input
-                id="studentEmail"
-                className="input"
-                type="email"
-                value={form.studentEmail}
-                onChange={(e) => setForm({ ...form, studentEmail: e.target.value })}
-                required
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="program">Program <span className="req">*</span></label>
-              <input
-                id="program"
-                className="input"
-                value={form.program}
-                onChange={(e) => setForm({ ...form, program: e.target.value })}
-                required
-                maxLength={150}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="degree">Degree <span className="req">*</span></label>
-              <input
-                id="degree"
-                className="input"
-                value={form.degree}
-                onChange={(e) => setForm({ ...form, degree: e.target.value })}
-                required
-                maxLength={150}
-              />
-            </div>
-          </div>
-          <div className="field">
-            <label htmlFor="pdf">Diploma PDF <span className="req">*</span></label>
-            <input
-              id="pdf"
-              type="file"
-              accept="application/pdf,.pdf"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              required
-            />
-          </div>
-          <div className="btn-row">
-            <Button
-              type="submit"
-              icon={FilePlus2}
-              loading={busy === 'upload'}
-              disabled={!wallet || walletMismatch || notAuthorized}
-            >
-              Upload &amp; Hash PDF
-            </Button>
-          </div>
-        </form>
-
-        {pending && (
-          <div className="alert ok" style={{ marginTop: 16 }}>
-            <div className="spread">
-              <div>
-                <strong>Ready to anchor on-chain</strong>
-                <div className="small mono" style={{ marginTop: 4 }}>Certificate ID: {pending.certificateId}</div>
-                <div className="small mono">SHA-256: {pending.sha256}</div>
-              </div>
-              <Button
-                variant="primary"
-                onClick={onConfirmIssue}
-                loading={busy === 'issue'}
-                disabled={!wallet || walletMismatch}
-              >
-                Sign issue() with MetaMask
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {qr && (
-          <div className="card mt" style={{ background: 'var(--surface-alt)' }}>
-            <h3 style={{ marginBottom: 10 }}>Certificate Anchored ✅</h3>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
-              <div className="qr">
-                <img src={qr.dataUrl} alt="Verification QR code" />
-              </div>
-              <div>
-                <p className="muted small">Scan to verify or share this public link:</p>
-                <p className="mono small">{qr.url}</p>
-                <Link className="btn ghost small" to={`/university/certificate/${qr.certificateId}`}>
-                  Open Certificate Detail <ExternalLink size={13} />
-                </Link>
-              </div>
-            </div>
           </div>
         )}
       </div>
@@ -587,9 +416,14 @@ export default function UniversityDashboard() {
               <h3>{certificates.length === 0 ? 'No certificates yet' : 'No results'}</h3>
               <p>
                 {certificates.length === 0
-                  ? 'Issue your first certificate using the form above.'
+                  ? 'Issue your first certificate using the button above.'
                   : 'Try adjusting your search or filter.'}
               </p>
+              {certificates.length === 0 && (
+                <Link className="btn" to="/university/issue">
+                  <FilePlus2 size={15} /> Issue Certificate
+                </Link>
+              )}
             </div>
           ) : (
             <table className="table">

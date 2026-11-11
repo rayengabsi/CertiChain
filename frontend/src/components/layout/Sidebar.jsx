@@ -29,7 +29,8 @@ function navFor(role) {
   return [
     { section: 'Workspace' },
     { to: '/university', label: 'Dashboard', icon: LayoutDashboard, end: true },
-    // Stage 4/5 add: Certificates (/university/certificates), Issue Certificate (/university/issue)
+    { to: '/university/issue', label: 'Issue Certificate', icon: FilePlus2 },
+    { to: '/university/certificates', label: 'Certificates', icon: FileText },
   ];
 }
 
