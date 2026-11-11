@@ -70,7 +70,7 @@ export default function Landing() {
         style={{
           position: 'relative',
           overflow: 'hidden',
-          padding: '96px 0 80px',
+          padding: 'clamp(56px, 8vw, 96px) 0 clamp(48px, 6vw, 80px)',
           textAlign: 'center',
         }}
       >
@@ -258,6 +258,7 @@ export default function Landing() {
       <section style={{ padding: '72px 0' }}>
         <div className="container">
           <div
+            className="landing-security-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.4fr)',

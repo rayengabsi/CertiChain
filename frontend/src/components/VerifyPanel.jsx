@@ -74,6 +74,7 @@ export default function VerifyPanel({ initialId = '' }) {
       {/* ── Tab selector ────────────────────────────────────────────────── */}
       {!result && (
         <div
+        className="verify-tabs"
           style={{
             display: 'inline-flex',
             padding: 4,
@@ -225,7 +226,7 @@ export default function VerifyPanel({ initialId = '' }) {
 
       {/* ── Error ───────────────────────────────────────────────────────── */}
       {error && !loading && (
-        <div className="alert error" style={{ marginTop: 16 }}>
+        <div className="alert error" role="alert" aria-live="assertive" style={{ marginTop: 16 }}>
           {error}
         </div>
       )}

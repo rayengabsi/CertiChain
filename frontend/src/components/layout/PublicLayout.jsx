@@ -8,6 +8,9 @@ import Logo from './Logo.jsx';
 export default function PublicLayout({ children }) {
   return (
     <div className="public-shell">
+      {/* Skip-to-main link */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+
       <header className="public-header">
         <div className="container public-header-inner">
           <Logo />
@@ -28,7 +31,7 @@ export default function PublicLayout({ children }) {
         </div>
       </header>
 
-      <main className="public-main">{children}</main>
+      <main id="main-content" className="public-main" tabIndex={-1}>{children}</main>
 
       <footer className="public-footer">
         <div className="container">

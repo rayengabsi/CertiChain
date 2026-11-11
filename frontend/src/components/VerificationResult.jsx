@@ -49,8 +49,8 @@ function CopyBtn({ value, label = 'value' }) {
 function MonoRow({ label, value, copyable = false }) {
   if (!value) return null;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 8, alignItems: 'start', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-      <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.07em', paddingTop: 2 }}>
+    <div className="detail-row" style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 8, alignItems: 'start', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+      <span className="row-label" style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.07em', paddingTop: 2 }}>
         {label}
       </span>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, minWidth: 0 }}>
@@ -74,8 +74,8 @@ function MonoRow({ label, value, copyable = false }) {
 function TextRow({ label, value }) {
   if (!value) return null;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 8, alignItems: 'start', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-      <span style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.07em', paddingTop: 2 }}>
+    <div className="detail-row" style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: 8, alignItems: 'start', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
+      <span className="row-label" style={{ fontSize: 'var(--fs-xs)', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.07em', paddingTop: 2 }}>
         {label}
       </span>
       <span style={{ fontSize: 'var(--fs-sm)', fontWeight: 500 }}>{value}</span>

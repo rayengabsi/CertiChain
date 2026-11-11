@@ -8,6 +8,7 @@ import {
   LogOut,
   ScanSearch,
   Settings as SettingsIcon,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext.jsx';
 import { initials } from '../../lib/format.js';
@@ -51,9 +52,22 @@ export default function Sidebar({ open, onClose }) {
   }
 
   return (
-    <aside className={`sidebar ${open ? 'open' : ''}`.trim()} aria-label="Primary navigation">
+    <aside
+      className={`sidebar ${open ? 'open' : ''}`.trim()}
+      aria-label="Primary navigation"
+      style={{ position: 'relative' }}
+    >
       <div className="sidebar-brand">
         <Logo />
+        {/* Close button — only visible on mobile when drawer is open */}
+        <button
+          className="sidebar-close"
+          onClick={onClose}
+          aria-label="Close navigation"
+          type="button"
+        >
+          <X size={16} />
+        </button>
       </div>
 
       <nav className="sidebar-nav">

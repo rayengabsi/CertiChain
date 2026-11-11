@@ -58,7 +58,7 @@ export default function VerifyLookupPage() {
 
       {/* ── VerifyPanel card ───────────────────────────────────────────────── */}
       <div
-        className="card"
+        className="card verify-lookup-card"
         style={{
           maxWidth: 680,
           margin: '0 auto',

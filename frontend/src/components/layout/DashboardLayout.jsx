@@ -15,6 +15,9 @@ export default function DashboardLayout({ title, breadcrumbs, actions, showWalle
 
   return (
     <div className="app-shell">
+      {/* Skip-to-main link for keyboard / screen reader users */}
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+
       {/* Overlay for mobile drawer */}
       <div
         className={`drawer-overlay${sidebarOpen ? ' show' : ''}`}
@@ -32,9 +35,9 @@ export default function DashboardLayout({ title, breadcrumbs, actions, showWalle
           showWallet={showWallet}
           onMenuClick={() => setSidebarOpen((o) => !o)}
         />
-        <div className="content">
+        <main id="main-content" className="content" tabIndex={-1}>
           {children}
-        </div>
+        </main>
       </div>
     </div>
   );

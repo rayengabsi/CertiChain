@@ -118,6 +118,23 @@
 .topbar-actions { display: flex; align-items: center; gap: 10px; }
 .menu-btn { display: none; }
 
+/* Close button inside mobile sidebar drawer */
+.sidebar-close {
+  display: none;
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  cursor: pointer;
+  place-items: center;
+  flex-shrink: 0;
+}
+
 .breadcrumbs {
   display: flex;
   align-items: center;
@@ -332,8 +349,12 @@
   .sidebar.open { transform: none; }
   .drawer-overlay.show { display: block; }
   .menu-btn { display: inline-flex; }
+  .sidebar-close { display: grid; }
+  .sidebar-brand { padding-right: 52px; } /* room for close button */
   .auth-wrap { grid-template-columns: 1fr; gap: 30px; min-height: 0; }
   .auth-aside { display: none; }
+  /* Hide wallet chip in topbar on tablet to prevent overflow */
+  .wallet-chip { display: none; }
 }
 
 @media (max-width: 720px) {
@@ -346,9 +367,51 @@
   .content { padding: var(--gutter); }
   .public-nav a.hide-sm { display: none; }
   .card { padding: 18px; }
+
+  /* Landing: security grid collapses to single column */
+  .landing-security-grid {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+
+  /* Topbar: hide the page title text on very small screens to give room for actions */
+  .topbar-title h1 { font-size: var(--fs-md); }
+
+  /* Stepper: allow chips to wrap */
+  .stepper-h { gap: 6px; }
+  .step-sep { width: 12px; }
 }
 
 @media (max-width: 520px) {
+  :root { --gutter: 14px; }
   .toast-region { right: 12px; left: 12px; bottom: 12px; width: auto; }
   .stat-card .stat-value { font-size: 26px; }
+
+  /* Verify panel tabs: stack vertically if needed */
+  .verify-tabs { flex-direction: column !important; }
+  .verify-tabs button { justify-content: center; }
+
+  /* MonoRow/TextRow: collapse to single column on tiny screens */
+  .detail-row { grid-template-columns: 1fr !important; gap: 2px !important; padding: 10px 0 !important; }
+  .detail-row .row-label { margin-top: 0; }
+
+  /* Topbar action area: prevent overflow */
+  .topbar-actions { gap: 6px; }
+
+  /* VerifyLookupPage card: reduce padding */
+  .verify-lookup-card { padding: 20px 18px !important; }
+
+  /* Login page: add vertical spacing */
+  .login-container { padding-top: 32px; padding-bottom: 32px; }
+
+  /* Buttons: ensure tap-friendly minimum height */
+  .btn { min-height: 42px; }
+  .btn.small { min-height: 36px; }
+
+  /* Modal: full-width footer buttons on mobile */
+  .modal-foot { flex-direction: column-reverse; }
+  .modal-foot .btn { width: 100%; justify-content: center; }
+
+  /* Page head actions: wrap to prevent overflow */
+  .topbar-actions { flex-wrap: wrap; }
 }
